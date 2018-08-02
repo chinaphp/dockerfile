@@ -1,3 +1,9 @@
+FROM golang:1.10.3-alpine3.8 AS builder
+
+RUN apk upgrade --update \
+    && apk add git \
+    && go get github.com/riobard/go-shadowsocks2
+
 FROM alpine:3.8
 
 LABEL maintainer="mritd <mritd1234@gmail.com>"
@@ -12,8 +18,6 @@ RUN apk upgrade --update \
     && echo ${TZ} > /etc/timezone \
     && rm -rf /var/cache/apk/*
 
-ADD goflyway /usr/local/bin/goflyway
+COPY --from=builder /go/bin/go-shadowsocks2 /usr/bin/shadowsocks
 
-ADD chinalist.txt /usr/local/bin/chinalist.txt 
-
-CMD ["goflyway"]
+ENTRYPOINT ["shadowsocks"]
